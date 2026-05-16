@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>敬語道場 — Keigo Dojo</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f0e8;
+    --card: #fffef9;
+    --ink: #1a1410;
+    --ink2: #5a4a3a;
+    --ink3: #9a8a7a;
+    --border: rgba(90,74,58,0.18);
+    --accent: #8b2020;
+    --accent2: #c9a84c;
+    --green-bg: #e8f5e9;
+    --green-mid: #2d6a4f;
+    --blue-bg: #e3eef9;
+    --blue-mid: #1a4a7a;
+    --red-bg: #fdecea;
+    --red-mid: #c0392b;
+    --sonkeigo-from: #1a5276;
+    --sonkeigo-to: #2471a3;
+    --kenjougo-from: #1a6b3c;
+    --kenjougo-to: #27ae60;
+    --radius: 10px;
+    --trans: 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    transition: background var(--trans), color var(--trans);
+    overflow-x: hidden;
+  }
+
+  /* BG themes */
+  body.sonkeigo-mode {
+    background: linear-gradient(160deg, #c7ddf5 0%, #daeaf8 60%, #e8f2fc 100%);
+  }
+  body.kenjougo-mode {
+    background: linear-gradient(160deg, #c0e0cf 0%, #d4edd9 60%, #e4f3e8 100%);
+  }
+  body.wrong-flash {
+    animation: wrongFlash 0.4s ease;
+  }
+  @keyframes wrongFlash {
+    0%,100% { background: inherit; }
+    30% { background: #fdecea; }
+  }
+
+  /* Decorative paper lines */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg, transparent, transparent 39px, rgba(90,74,58,0.06) 39px, rgba(90,74,58,0.06) 40px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===================== LAYOUT ===================== */
+  .app {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+    gap: 1.5rem;
+  }
+
+  /* ===================== HEADER ===================== */
+  .header {
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+  }
+  .header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .header h1 span {
+    display: block;
+    font-size: 0.55em;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: var(--ink2);
+    margin-top: 4px;
+  }
+  .stamp {
+    display: inline-block;
+    border: 2.5px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    padding: 2px 10px;
+    margin-top: 8px;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  /* ===================== MODE TOGGLE ===================== */
+  .mode-pill {
+    display: flex;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .mode-btn {
+    border: none;
+    background: transparent;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink2);
+    padding: 6px 18px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .mode-btn.active {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  /* ===================== STATS BAR ===================== */
+  .stats-bar {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--ink2);
+    letter-spacing: 0.05em;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .stat-val {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink3);
+  }
+  .stat-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+  }
+
+  /* Hearts */
+  .hearts {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  .heart {
+    font-size: 1.2rem;
+    transition: transform 0.2s, opacity 0.3s;
+  }
+  .heart.lost {
+    opacity: 0.2;
+    filter: grayscale(1);
+    transform: scale(0.85);
+  }
+
+  /* ===================== CARD ===================== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 560px;
+    padding: 2rem 2rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+    transition: background var(--trans);
+  }
+  body.sonkeigo-mode .card::before {
+    background: linear-gradient(90deg, var(--sonkeigo-from), var(--sonkeigo-to));
+  }
+  body.kenjougo-mode .card::before {
+    background: linear-gradient(90deg, var(--kenjougo-from), var(--kenjougo-to));
+  }
+  body:not(.sonkeigo-mode):not(.kenjougo-mode) .card::before {
+    background: var(--accent2);
+  }
+
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 1.2rem;
+    transition: all var(--trans);
+  }
+  .type-badge.sonkeigo {
+    background: rgba(26,74,122,0.12);
+    color: var(--sonkeigo-to);
+    border: 1px solid rgba(26,74,122,0.2);
+  }
+  .type-badge.kenjougo {
+    background: rgba(26,107,60,0.12);
+    color: var(--kenjougo-to);
+    border: 1px solid rgba(26,107,60,0.2);
+  }
+
+  .prompt-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 0.5rem;
+  }
+
+  .prompt-base {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(2rem, 8vw, 3.2rem);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+  .prompt-reading {
+    font-size: 0.8rem;
+    color: var(--ink3);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+  .prompt-meaning {
+    font-size: 0.85rem;
+    color: var(--ink2);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+
+  .instruction {
+    font-size: 0.78rem;
+    color: var(--ink3);
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    padding: 8px 12px;
+    background: rgba(90,74,58,0.05);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent2);
+  }
+
+  /* ===================== MULTIPLE CHOICE ===================== */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .choice-btn {
+    width: 100%;
+    text-align: left;
+    background: rgba(90,74,58,0.04);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1.05rem;
+    color: var(--ink);
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--accent2);
+    background: rgba(201,168,76,0.08);
+    transform: translateX(3px);
+  }
+  .choice-btn .choice-index {
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--ink3);
+    min-width: 18px;
+  }
+  .choice-btn.correct {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.1);
+    color: #1a6b3c;
+  }
+  .choice-btn.wrong {
+    border-color: #e74c3c;
+    background: rgba(231,76,60,0.1);
+    color: #8b1a1a;
+  }
+  .choice-btn:disabled { cursor: default; }
+
+  .choice-icon {
+    margin-left: auto;
+    font-size: 1.1rem;
+  }
+
+  /* ===================== TYPE MODE ===================== */
+  .type-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .type-input {
+    width: 100%;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+    background: rgba(90,74,58,0.04);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .type-input:focus {
+    border-color: var(--accent2);
+  }
+  .type-input.correct {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.08);
+  }
+  .type-input.wrong {
+    border-color: #e74c3c;
+    background: rgba(231,76,60,0.08);
+    animation: shake 0.35s ease;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-6px)}
+    40%{transform:translateX(6px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(4px)}
+  }
+  .submit-btn {
+    width: 100%;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.85rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .submit-btn:hover {
+    background: #333;
+    transform: translateY(-1px);
+  }
+  .submit-btn:active { transform: translateY(0); }
+  .hint-text {
+    font-size: 0.75rem;
+    color: var(--ink3);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  /* ===================== FEEDBACK ===================== */
+  .feedback-msg {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.6rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    min-height: 36px;
+    transition: all 0.2s;
+  }
+  .feedback-msg.correct-fb {
+    color: #1a6b3c;
+    background: rgba(39,174,96,0.1);
+  }
+  .feedback-msg.wrong-fb {
+    color: #8b1a1a;
+    background: rgba(231,76,60,0.1);
+  }
+
+  /* ===================== NEXT BUTTON ===================== */
+  .next-btn {
+    width: 100%;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink2);
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.18s;
+    margin-top: 0.8rem;
+    display: none;
+  }
+  .next-btn.visible {
+    display: block;
+  }
+  .next-btn:hover {
+    background: rgba(90,74,58,0.06);
+    border-color: var(--ink3);
+  }
+
+  /* ===================== GAME OVER ===================== */
+  .gameover-screen {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    display: none;
+  }
+  .gameover-screen.visible {
+    display: block;
+  }
+  .gameover-kanji {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 4rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .gameover-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+  .gameover-score {
+    font-size: 1rem;
+    color: var(--ink2);
+    margin-bottom: 1.5rem;
+  }
+  .gameover-score strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 2rem;
+    color: var(--ink);
+    display: block;
+    margin: 0.3rem 0;
+  }
+  .restart-btn {
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.9rem 2.5rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .restart-btn:hover {
+    background: #333;
+    transform: translateY(-1px);
+  }
+
+  /* ===================== PROGRESS ===================== */
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 560px;
+    height: 3px;
+    background: rgba(90,74,58,0.1);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent2);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+  }
+
+  /* ===================== SCROLL TRANSITION ===================== */
+  .fade-in {
+    animation: fadeSlideIn 0.35s ease forwards;
+  }
+  @keyframes fadeSlideIn {
+    from { opacity:0; transform:translateY(10px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* ===================== LEGEND ===================== */
+  .legend {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--ink3);
+    text-transform: uppercase;
+    align-items: center;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .dot-blue { background: var(--sonkeigo-to); }
+  .dot-green { background: var(--kenjougo-to); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>敬語道場<span>KEIGO DOJO</span></h1>
+    <div class="stamp">Honorific Japanese Practice</div>
+  </div>
+
+  <!-- Mode Toggle -->
+  <div class="mode-pill">
+    <button class="mode-btn active" id="btn-mc" onclick="setMode('mc')">① Multiple Choice</button>
+    <button class="mode-btn" id="btn-type" onclick="setMode('type')">② Type Answer</button>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <span><span class="legend-dot dot-blue"></span>尊敬語 Sonkeigo (blue)</span>
+    <span><span class="legend-dot dot-green"></span>謙譲語 Kenjōgo (green)</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-val" id="score-val">0</div>
+      <div class="stat-label">Score</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-val" id="streak-val">0</div>
+      <div class="stat-label">Streak</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="hearts" id="hearts-bar"></div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <!-- Game Card -->
+  <div class="card fade-in" id="game-card">
+    <div class="type-badge" id="type-badge">尊敬語 Sonkeigo</div>
+    <div class="prompt-label">Base Form — Plain Japanese</div>
+    <div class="prompt-base" id="prompt-base">する</div>
+    <div class="prompt-reading" id="prompt-reading">suru</div>
+    <div class="prompt-meaning" id="prompt-meaning">"to do"</div>
+
+    <div class="instruction" id="instruction-text">Choose the correct honorific form:</div>
+
+    <!-- Multiple Choice Area -->
+    <div class="choices" id="choices-area">
+      <button class="choice-btn" id="c0" onclick="checkAnswer(0)"><span class="choice-index">A</span><span id="c0t"></span><span class="choice-icon" id="c0i"></span></button>
+      <button class="choice-btn" id="c1" onclick="checkAnswer(1)"><span class="choice-index">B</span><span id="c1t"></span><span class="choice-icon" id="c1i"></span></button>
+      <button class="choice-btn" id="c2" onclick="checkAnswer(2)"><span class="choice-index">C</span><span id="c2t"></span><span class="choice-icon" id="c2i"></span></button>
+    </div>
+
+    <!-- Type Area -->
+    <div class="type-area" id="type-area" style="display:none">
+      <input class="type-input" id="type-input" type="text" placeholder="答えを入力..." autocomplete="off" autocorrect="off" spellcheck="false" />
+      <div class="hint-text" id="hint-display"></div>
+      <button class="submit-btn" onclick="checkTypeAnswer()">確認 — Check</button>
+    </div>
+
+    <div class="feedback-msg" id="feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">次の問題 → Next</button>
+  </div>
+
+  <!-- Game Over -->
+  <div class="gameover-screen" id="gameover-screen">
+    <span class="gameover-kanji">終</span>
+    <div class="gameover-title">Game Over</div>
+    <div class="gameover-score">
+      Final Score
+      <strong id="final-score">0</strong>
+      points
+    </div>
+    <button class="restart-btn" onclick="restartGame()">もう一度 — Play Again</button>
+  </div>
+
+</div>
+
+<script>
+const VERBS = [
+  { base:"する", reading:"suru", meaning:"to do", sonkeigo:"なさる", kenjougo:"いたす", decoys:["ございます","おっしゃる","くださる","参る","存じる","おられる"] },
+  { base:"いる", reading:"iru", meaning:"to be (animate)", sonkeigo:"いらっしゃる", kenjougo:"おる", decoys:["ございます","なさる","くださる","参る","申す","おっしゃる"] },
+  { base:"行く", reading:"iku", meaning:"to go", sonkeigo:"いらっしゃる", kenjougo:"参る", decoys:["なさる","おっしゃる","くださる","おる","いたす","存じる"] },
+  { base:"来る", reading:"kuru", meaning:"to come", sonkeigo:"いらっしゃる", kenjougo:"参る", decoys:["なさる","くださる","おる","おっしゃる","ございます","申す"] },
+  { base:"言う", reading:"iu", meaning:"to say", sonkeigo:"おっしゃる", kenjougo:"申す", decoys:["なさる","いらっしゃる","くださる","参る","いたす","ございます"] },
+  { base:"食べる", reading:"taberu", meaning:"to eat", sonkeigo:"召し上がる", kenjougo:"いただく", decoys:["なさる","おっしゃる","くださる","参る","おる","ございます"] },
+  { base:"飲む", reading:"nomu", meaning:"to drink", sonkeigo:"召し上がる", kenjougo:"いただく", decoys:["なさる","いらっしゃる","くださる","おっしゃる","申す","存じる"] },
+  { base:"もらう", reading:"morau", meaning:"to receive", sonkeigo:"お受け取りになる", kenjougo:"いただく", decoys:["なさる","いらっしゃる","くださる","参る","おっしゃる","ございます"] },
+  { base:"あげる", reading:"ageru", meaning:"to give (to peer/below)", sonkeigo:"くださる", kenjougo:"差し上げる", decoys:["なさる","いらっしゃる","おっしゃる","参る","いたす","申す"] },
+  { base:"くれる", reading:"kureru", meaning:"to give (to me)", sonkeigo:"くださる", kenjougo:"差し上げる", decoys:["なさる","いらっしゃる","おっしゃる","参る","おる","ございます"] },
+  { base:"知っている", reading:"shitte iru", meaning:"to know", sonkeigo:"ご存じ", kenjougo:"存じている", decoys:["なさる","いらっしゃる","くださる","おっしゃる","申す","参る"] },
+  { base:"見る", reading:"miru", meaning:"to see/look", sonkeigo:"ご覧になる", kenjougo:"拝見する", decoys:["なさる","いらっしゃる","くださる","おっしゃる","おる","参る"] },
+  { base:"聞く", reading:"kiku", meaning:"to ask/listen", sonkeigo:"お聞きになる", kenjougo:"伺う", decoys:["なさる","いらっしゃる","くださる","おっしゃる","参る","申す"] },
+  { base:"もらう", reading:"morau", meaning:"to receive (visiting)", sonkeigo:"お越しになる", kenjougo:"伺う", decoys:["なさる","いらっしゃる","くださる","おっしゃる","参る","ございます"] },
+  { base:"思う", reading:"omou", meaning:"to think", sonkeigo:"お思いになる", kenjougo:"存じる", decoys:["なさる","いらっしゃる","くださる","おっしゃる","参る","いたす"] },
+  { base:"読む", reading:"yomu", meaning:"to read", sonkeigo:"お読みになる", kenjougo:"拝読する", decoys:["なさる","いらっしゃる","くださる","おっしゃる","おる","参る"] },
+  { base:"書く", reading:"kaku", meaning:"to write", sonkeigo:"お書きになる", kenjougo:"書かせていただく", decoys:["なさる","いらっしゃる","くださる","おっしゃる","参る","存じる"] },
+  { base:"会う", reading:"au", meaning:"to meet", sonkeigo:"お会いになる", kenjougo:"お目にかかる", decoys:["なさる","いらっしゃる","くださる","おっしゃる","参る","ございます"] },
+  { base:"待つ", reading:"matsu", meaning:"to wait", sonkeigo:"お待ちになる", kenjougo:"お待ちする", decoys:["なさる","いらっしゃる","くださる","おっしゃる","おる","参る"] },
+  { base:"使う", reading:"tsukau", meaning:"to use", sonkeigo:"お使いになる", kenjougo:"使わせていただく", decoys:["なさる","いらっしゃる","くださる","おっしゃる","参る","申す"] },
+];
+
+const DECOY_POOL = ["ございます","なさる","いらっしゃる","おっしゃる","くださる","参る","申す","おる","いたす","存じる","伺う","拝見する","承る","いただく","差し上げる","拝読する"];
+
+let state = {
+  mode: 'mc',        // 'mc' | 'type'
+  lives: 5,
+  score: 0,
+  streak: 0,
+  answered: false,
+  currentVerb: null,
+  currentType: null, // 'sonkeigo' | 'kenjougo'
+  correctAnswer: '',
+  questionCount: 0,
+  usedVerbs: [],
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function pick(arr, exclude=[]) {
+  const filtered = arr.filter(x=>!exclude.includes(x));
+  return filtered[Math.floor(Math.random()*filtered.length)];
+}
+
+function renderHearts() {
+  const bar = document.getElementById('hearts-bar');
+  bar.innerHTML = '';
+  for(let i=0;i<5;i++){
+    const h = document.createElement('span');
+    h.className = 'heart' + (i >= state.lives ? ' lost' : '');
+    h.textContent = '♥';
+    bar.appendChild(h);
+  }
+}
+
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('btn-mc').classList.toggle('active', m==='mc');
+  document.getElementById('btn-type').classList.toggle('active', m==='type');
+  document.getElementById('choices-area').style.display = m==='mc' ? 'flex' : 'none';
+  document.getElementById('type-area').style.display = m==='type' ? 'flex' : 'none';
+  nextQuestion();
+}
+
+function nextQuestion() {
+  state.answered = false;
+  document.getElementById('next-btn').classList.remove('visible');
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback-msg';
+
+  // Pick verb
+  let available = VERBS.filter(v=>!state.usedVerbs.includes(v.base));
+  if(available.length === 0) { state.usedVerbs = []; available = VERBS; }
+  const verb = available[Math.floor(Math.random()*available.length)];
+  state.usedVerbs.push(verb.base);
+  state.currentVerb = verb;
+
+  // Pick type
+  const type = Math.random() < 0.5 ? 'sonkeigo' : 'kenjougo';
+  state.currentType = type;
+  state.correctAnswer = type === 'sonkeigo' ? verb.sonkeigo : verb.kenjougo;
+
+  // Update body bg
+  document.body.classList.toggle('sonkeigo-mode', type==='sonkeigo');
+  document.body.classList.toggle('kenjougo-mode', type==='kenjougo');
+
+  // Badge
+  const badge = document.getElementById('type-badge');
+  if(type==='sonkeigo') {
+    badge.textContent = '尊敬語 — Sonkeigo (for others)';
+    badge.className = 'type-badge sonkeigo';
+  } else {
+    badge.textContent = '謙譲語 — Kenjōgo (humble)';
+    badge.className = 'type-badge kenjougo';
+  }
+
+  // Prompt
+  document.getElementById('prompt-base').textContent = verb.base;
+  document.getElementById('prompt-reading').textContent = verb.reading;
+  document.getElementById('prompt-meaning').textContent = '"' + verb.meaning + '"';
+
+  state.questionCount++;
+  const prog = Math.min((state.questionCount / 20) * 100, 100);
+  document.getElementById('progress-fill').style.width = prog + '%';
+
+  // Game card animation
+  const card = document.getElementById('game-card');
+  card.classList.remove('fade-in');
+  void card.offsetWidth;
+  card.classList.add('fade-in');
+
+  if(state.mode === 'mc') {
+    renderMultipleChoice(verb, type);
+  } else {
+    renderTypeMode(verb, type);
+  }
+}
+
+function renderMultipleChoice(verb, type) {
+  const correct = state.correctAnswer;
+  // Wrong answer from same category
+  const wrongSame = type === 'sonkeigo' ? verb.kenjougo : verb.sonkeigo;
+  // Random decoy
+  const decoy = pick(DECOY_POOL, [correct, wrongSame]);
+
+  const choices = shuffle([correct, wrongSame, decoy]);
+
+  const instruction = document.getElementById('instruction-text');
+  instruction.textContent = type==='sonkeigo'
+    ? '→ Use 尊敬語 (Sonkeigo): elevating the other person\'s action'
+    : '→ Use 謙譲語 (Kenjōgo): humbling your own action';
+
+  const labels = ['A','B','C'];
+  choices.forEach((c,i)=>{
+    document.getElementById('c'+i+'t').textContent = c;
+    document.getElementById('c'+i+'i').textContent = '';
+    const btn = document.getElementById('c'+i);
+    btn.className = 'choice-btn';
+    btn.disabled = false;
+    btn.dataset.val = c;
+    document.querySelector('#c'+i+' .choice-index').textContent = labels[i];
+  });
+}
+
+function renderTypeMode(verb, type) {
+  const input = document.getElementById('type-input');
+  input.value = '';
+  input.className = 'type-input';
+  input.disabled = false;
+  input.focus();
+
+  const hint = document.getElementById('hint-display');
+  hint.textContent = 'First character hint: ' + state.correctAnswer[0] + '…';
+
+  const instruction = document.getElementById('instruction-text');
+  instruction.textContent = type==='sonkeigo'
+    ? '→ Type the 尊敬語 (Sonkeigo) form — use Japanese input (IME)'
+    : '→ Type the 謙譲語 (Kenjōgo) humble form';
+}
+
+function checkAnswer(idx) {
+  if(state.answered) return;
+  state.answered = true;
+  const chosen = document.getElementById('c'+idx).dataset.val;
+  const correct = state.correctAnswer;
+  const isCorrect = chosen === correct;
+  handleResult(isCorrect, correct, idx);
+}
+
+function checkTypeAnswer() {
+  if(state.answered) return;
+  const input = document.getElementById('type-input');
+  const val = input.value.trim();
+  if(!val) return;
+  state.answered = true;
+  const isCorrect = val === state.correctAnswer;
+
+  input.className = 'type-input ' + (isCorrect ? 'correct' : 'wrong');
+  input.disabled = true;
+
+  if(!isCorrect) {
+    document.getElementById('hint-display').textContent = '正解: ' + state.correctAnswer;
+  }
+
+  handleResultCommon(isCorrect);
+}
+
+function handleResult(isCorrect, correct, clickedIdx) {
+  // Reveal all buttons
+  for(let i=0;i<3;i++){
+    const btn = document.getElementById('c'+i);
+    const val = btn.dataset.val;
+    btn.disabled = true;
+    if(val === correct) {
+      btn.classList.add('correct');
+      document.getElementById('c'+i+'i').textContent = '✓';
+    } else if(i===clickedIdx && !isCorrect) {
+      btn.classList.add('wrong');
+      document.getElementById('c'+i+'i').textContent = '✗';
+    }
+  }
+  handleResultCommon(isCorrect);
+}
+
+function handleResultCommon(isCorrect) {
+  const fb = document.getElementById('feedback');
+  if(isCorrect) {
+    state.streak++;
+    const bonus = state.streak >= 3 ? 2 : 1;
+    state.score += 10 * bonus;
+    fb.className = 'feedback-msg correct-fb';
+    fb.textContent = state.streak >= 3
+      ? `✓ 正解！ +${10*bonus}点 (${state.streak}連続ボーナス！)`
+      : '✓ 正解！ Correct! +10';
+  } else {
+    state.streak = 0;
+    state.lives--;
+    document.body.classList.add('wrong-flash');
+    setTimeout(()=>document.body.classList.remove('wrong-flash'), 400);
+    fb.className = 'feedback-msg wrong-fb';
+    fb.textContent = `✗ 不正解。正解は「${state.correctAnswer}」`;
+    renderHearts();
+    if(state.lives <= 0) {
+      setTimeout(showGameOver, 900);
+      return;
+    }
+  }
+
+  document.getElementById('score-val').textContent = state.score;
+  document.getElementById('streak-val').textContent = state.streak;
+
+  document.getElementById('next-btn').classList.add('visible');
+}
+
+function showGameOver() {
+  document.getElementById('game-card').style.display = 'none';
+  document.getElementById('final-score').textContent = state.score;
+  document.getElementById('gameover-screen').classList.add('visible');
+  document.body.classList.remove('sonkeigo-mode','kenjougo-mode');
+}
+
+function restartGame() {
+  state.lives = 5;
+  state.score = 0;
+  state.streak = 0;
+  state.answered = false;
+  state.questionCount = 0;
+  state.usedVerbs = [];
+  document.getElementById('score-val').textContent = '0';
+  document.getElementById('streak-val').textContent = '0';
+  document.getElementById('progress-fill').style.width = '0%';
+  renderHearts();
+  document.getElementById('gameover-screen').classList.remove('visible');
+  document.getElementById('game-card').style.display = '';
+  nextQuestion();
+}
+
+// Keyboard shortcut for MC (A/B/C keys)
+document.addEventListener('keydown', e => {
+  if(state.mode !== 'mc' || state.answered) return;
+  const map = { 'a':0, 'b':1, 'c':2, '1':0, '2':1, '3':2 };
+  if(map[e.key.toLowerCase()] !== undefined) checkAnswer(map[e.key.toLowerCase()]);
+  if(e.key === 'Enter') { const nb = document.getElementById('next-btn'); if(nb.classList.contains('visible')) nextQuestion(); }
+});
+document.addEventListener('keydown', e => {
+  if(state.mode==='type' && e.key==='Enter' && !state.answered) checkTypeAnswer();
+  if(e.key==='Enter' && state.answered) { const nb=document.getElementById('next-btn'); if(nb.classList.contains('visible')) nextQuestion(); }
+});
+
+// Boot
+renderHearts();
+nextQuestion();
+</script>
+</body>
+</html>
