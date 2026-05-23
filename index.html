@@ -513,6 +513,174 @@
     background: #333;
     transform: translateY(-1px);
   }
+  .review-btn {
+    background: transparent;
+    color: var(--ink2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem 2rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 0.6rem;
+  }
+  .review-btn:hover {
+    background: rgba(90,74,58,0.06);
+    border-color: var(--ink3);
+  }
+
+  /* ===================== REVIEW SCREEN ===================== */
+  .review-screen {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 620px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    display: none;
+  }
+  .review-screen.visible { display: block; }
+
+  .review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.4rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .review-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .review-summary {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--ink3);
+  }
+  .review-summary span strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--ink);
+    display: block;
+    text-align: center;
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .filter-tab {
+    border: 1.5px solid var(--border);
+    background: transparent;
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--ink2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-tab.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .filter-tab.tab-wrong.active { background: #c0392b; border-color: #c0392b; }
+  .filter-tab.tab-correct.active { background: #27ae60; border-color: #27ae60; }
+
+  .review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .review-list::-webkit-scrollbar { width: 4px; }
+  .review-list::-webkit-scrollbar-track { background: transparent; }
+  .review-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .review-item {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: 0.8rem;
+  }
+  .review-item.ri-correct { border-color: rgba(39,174,96,0.35); background: rgba(39,174,96,0.04); }
+  .review-item.ri-wrong   { border-color: rgba(231,76,60,0.35);  background: rgba(231,76,60,0.04); }
+
+  .ri-icon {
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+  .ri-body { display: flex; flex-direction: column; gap: 3px; }
+  .ri-base {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .ri-meta {
+    font-size: 0.68rem;
+    color: var(--ink3);
+    letter-spacing: 0.08em;
+  }
+  .ri-answers {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    font-size: 0.82rem;
+  }
+  .ri-correct-ans {
+    font-family: 'Noto Serif JP', serif;
+    color: #1a6b3c;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .ri-your-ans {
+    font-family: 'Noto Serif JP', serif;
+    color: #c0392b;
+    font-size: 0.85rem;
+    text-decoration: line-through;
+    opacity: 0.8;
+  }
+  .ri-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+    align-self: flex-end;
+  }
+  .ri-badge.sonkeigo { background: rgba(26,74,122,0.1); color: var(--sonkeigo-to); }
+  .ri-badge.kenjougo { background: rgba(26,107,60,0.1); color: var(--kenjougo-to); }
+
+  .review-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+    flex-wrap: wrap;
+  }
+  .review-actions button { flex: 1; min-width: 120px; }
 
   /* ===================== PROGRESS ===================== */
   .progress-bar-wrap {
@@ -637,7 +805,32 @@
       <strong id="final-score">0</strong>
       points
     </div>
-    <button class="restart-btn" onclick="restartGame()">もう一度 — Play Again</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;width:100%">
+      <button class="restart-btn" onclick="restartGame()">もう一度 — Play Again</button>
+      <button class="review-btn" onclick="showReview()">復習 — Review Answers</button>
+    </div>
+  </div>
+
+  <!-- Review Screen -->
+  <div class="review-screen" id="review-screen">
+    <div class="review-header">
+      <div class="review-title">復習 — Review</div>
+      <div class="review-summary">
+        <span><strong id="rv-correct">0</strong>correct</span>
+        <span><strong id="rv-wrong">0</strong>wrong</span>
+        <span><strong id="rv-total">0</strong>total</span>
+      </div>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" id="ft-all" onclick="setFilter('all')">All</button>
+      <button class="filter-tab tab-wrong" id="ft-wrong" onclick="setFilter('wrong')">✗ Wrong only</button>
+      <button class="filter-tab tab-correct" id="ft-correct" onclick="setFilter('correct')">✓ Correct only</button>
+    </div>
+    <div class="review-list" id="review-list"></div>
+    <div class="review-actions">
+      <button class="restart-btn" onclick="restartGame()">もう一度 — Play Again</button>
+      <button class="review-btn" onclick="backToGameOver()">← Back</button>
+    </div>
   </div>
 
 </div>
@@ -669,17 +862,20 @@ const VERBS = [
 const DECOY_POOL = ["ございます","なさる","いらっしゃる","おっしゃる","くださる","参る","申す","おる","いたす","存じる","伺う","拝見する","承る","いただく","差し上げる","拝読する"];
 
 let state = {
-  mode: 'mc',        // 'mc' | 'type'
+  mode: 'mc',
   lives: 5,
   score: 0,
   streak: 0,
   answered: false,
   currentVerb: null,
-  currentType: null, // 'sonkeigo' | 'kenjougo'
+  currentType: null,
   correctAnswer: '',
   questionCount: 0,
   usedVerbs: [],
+  history: [],  // { verb, type, correctAnswer, yourAnswer, isCorrect }
 };
+
+let reviewFilter = 'all';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -814,6 +1010,7 @@ function checkAnswer(idx) {
   const chosen = document.getElementById('c'+idx).dataset.val;
   const correct = state.correctAnswer;
   const isCorrect = chosen === correct;
+  state._lastYourAnswer = chosen;
   handleResult(isCorrect, correct, idx);
 }
 
@@ -823,6 +1020,7 @@ function checkTypeAnswer() {
   const val = input.value.trim();
   if(!val) return;
   state.answered = true;
+  state._lastYourAnswer = val;
   const isCorrect = val === state.correctAnswer;
 
   input.className = 'type-input ' + (isCorrect ? 'correct' : 'wrong');
@@ -853,6 +1051,15 @@ function handleResult(isCorrect, correct, clickedIdx) {
 }
 
 function handleResultCommon(isCorrect) {
+  // Record in history
+  state.history.push({
+    verb: state.currentVerb,
+    type: state.currentType,
+    correctAnswer: state.correctAnswer,
+    yourAnswer: state._lastYourAnswer || '',
+    isCorrect,
+  });
+
   const fb = document.getElementById('feedback');
   if(isCorrect) {
     state.streak++;
@@ -878,7 +1085,6 @@ function handleResultCommon(isCorrect) {
 
   document.getElementById('score-val').textContent = state.score;
   document.getElementById('streak-val').textContent = state.streak;
-
   document.getElementById('next-btn').classList.add('visible');
 }
 
@@ -889,6 +1095,80 @@ function showGameOver() {
   document.body.classList.remove('sonkeigo-mode','kenjougo-mode');
 }
 
+function showReview() {
+  reviewFilter = 'all';
+  document.getElementById('gameover-screen').classList.remove('visible');
+  document.getElementById('review-screen').classList.add('visible');
+
+  const correct = state.history.filter(h=>h.isCorrect).length;
+  const wrong = state.history.filter(h=>!h.isCorrect).length;
+  document.getElementById('rv-correct').textContent = correct;
+  document.getElementById('rv-wrong').textContent = wrong;
+  document.getElementById('rv-total').textContent = state.history.length;
+
+  // Reset filter tabs
+  ['all','wrong','correct'].forEach(f => {
+    document.getElementById('ft-'+f).classList.toggle('active', f==='all');
+  });
+
+  renderReviewList();
+}
+
+function backToGameOver() {
+  document.getElementById('review-screen').classList.remove('visible');
+  document.getElementById('gameover-screen').classList.add('visible');
+}
+
+function setFilter(f) {
+  reviewFilter = f;
+  ['all','wrong','correct'].forEach(id => {
+    document.getElementById('ft-'+id).classList.toggle('active', id===f);
+  });
+  renderReviewList();
+}
+
+function renderReviewList() {
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+
+  const items = state.history.filter(h => {
+    if(reviewFilter === 'wrong') return !h.isCorrect;
+    if(reviewFilter === 'correct') return h.isCorrect;
+    return true;
+  });
+
+  if(items.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--ink3);font-size:0.85rem;padding:1.5rem">No items to show.</div>';
+    return;
+  }
+
+  items.forEach(h => {
+    const el = document.createElement('div');
+    el.className = 'review-item ' + (h.isCorrect ? 'ri-correct' : 'ri-wrong');
+
+    const badgeClass = h.type === 'sonkeigo' ? 'sonkeigo' : 'kenjougo';
+    const badgeLabel = h.type === 'sonkeigo' ? '尊敬語' : '謙譲語';
+
+    const wrongRow = !h.isCorrect && h.yourAnswer
+      ? `<div class="ri-your-ans">${h.yourAnswer}</div>`
+      : '';
+
+    el.innerHTML = `
+      <div class="ri-icon">${h.isCorrect ? '✓' : '✗'}</div>
+      <div class="ri-body">
+        <div class="ri-base">${h.verb.base}</div>
+        <div class="ri-meta">${h.verb.reading} — "${h.verb.meaning}"</div>
+      </div>
+      <div class="ri-answers">
+        <span class="ri-badge ${badgeClass}">${badgeLabel}</span>
+        <div class="ri-correct-ans">${h.correctAnswer}</div>
+        ${wrongRow}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
 function restartGame() {
   state.lives = 5;
   state.score = 0;
@@ -896,11 +1176,14 @@ function restartGame() {
   state.answered = false;
   state.questionCount = 0;
   state.usedVerbs = [];
+  state.history = [];
+  state._lastYourAnswer = '';
   document.getElementById('score-val').textContent = '0';
   document.getElementById('streak-val').textContent = '0';
   document.getElementById('progress-fill').style.width = '0%';
   renderHearts();
   document.getElementById('gameover-screen').classList.remove('visible');
+  document.getElementById('review-screen').classList.remove('visible');
   document.getElementById('game-card').style.display = '';
   nextQuestion();
 }
